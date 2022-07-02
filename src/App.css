@@ -1,4 +1,4 @@
-body {
+main {
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   font-weight: 700;
   text-align: center;
@@ -6,63 +6,124 @@ body {
   height: 100vh;
   background: rgb(73,58,140);
   background: linear-gradient(135deg, rgba(73,58,140,1) 0%, rgba(21,204,119,1) 100%);
-  background-attachment: fixed;
-  padding: 5% 0;
+  
+  -moz-background-size: 100%;
+  -webkit-background-size: 100%;
+  -o-background-size: 100%;
+  background-size: 100%;
+
+  font-size: 1vw;
+  line-height: 1.1vw;
 }
-h1 {
-  padding: 0 0 20px 0;
+
+.params-form__title {
+  padding: 0 0 4% 0;
 }
-form {
+
+.params-form {
   height: 100%;
   width: 50%;
   margin: 0 auto;
   background: rgba(0,0,0,0.4);
-  border-radius: 20px;
+  border-radius: 2vw;
   padding: 2%;
   color: white;
+
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
 }
+
 button {
   width: 30%;
-  height: 40px;
+  height: 8%;
   color: rgb(24, 145, 88);
   font-weight: 700;
-  border: 2px solid rgb(24, 145, 88);
+  border: 0.2vw solid rgb(24, 145, 88);
   background-color: rgba(0,0,0,0.4);
-  border-radius: 5px;
+  border-radius: 2vw;
   transition-duration: 0.2s;
   vertical-align: middle;
   margin: 0 1%;
 }
+
 button:hover {
   cursor: pointer;
 }
+
 button:active {
   color: rgba(0,0,0,0.4);
   background-color: rgb(24, 145, 88);
 }
+
 button:disabled {
   color: rgba(0,0,0,0.4);
   background-color: grey;
-  border:  2px solid #474747;
+  border:  0.2vw solid #474747;
   cursor: default;
 }
-form div {
+
+.params-form__fields {
   text-align: left;
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
 }
-input {
+
+.params-form__fields__input {
   width: 50%;
-  height: 30px;
+  height: 2.5vw;
   margin-bottom: 4%;
-  border-radius: 5px;
+  border-radius: 2vw;
   color: rgb(24, 145, 88);
   font-weight: 700;
-  border: 2px solid rgb(24, 145, 88);
+  border: 0.2vw solid rgb(24, 145, 88);
   background-color: rgba(0,0,0,0.4);
 }
-label {
+
+.params-form__fields__label {
   vertical-align: middle;
   width: 30%;
+}
+
+.notifications {
+  position: absolute;
+
+  width: 20vw;
+
+  right: 1vw;
+  bottom: 0;
+}
+
+.notifications_push {
+  height: 15vh;
+  width: 100%;
+
+  margin: 2vh 0;
+  padding: 1vw 1vw;
+  
+  border-radius: 2vw;
+
+  border: 0.2vw solid rgb(24, 145, 88);
+  background: rgba(0,0,0,0.4);
+
+  overflow: hidden;
+  
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+
+.notifications_push h3 {
+  color: rgb(24, 145, 88);
+  width: 100%;
+}
+
+.notifications_push p {
+  color: white;
+  margin-top: 1vh;
+  width: 100%;
+  font-weight: 200;
 }

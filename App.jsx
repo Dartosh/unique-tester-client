@@ -1,9 +1,8 @@
-import logo from './logo.svg';
 import './App.css';
 import { useState } from 'react';
 
 function App() {
-  const [spreadsheetId, setSpreadsheetId] = useState('');
+  const [spreadsheetLink, setSpreadsheetLink] = useState('');
   const [rangeSheetTitle, setRangeSheetTitle] = useState('');
   const [columnCheckStatus, setColumnCheckStatus] = useState('');
   const [columnBkTitle, setColumnBkTitle] = useState('');
@@ -12,15 +11,16 @@ function App() {
   const [columnSecondAntiPlag, setColumnSecondAntiPlag] = useState('');
   const [columnWordsNumber, setColumnWordsNumber] = useState('');
   const [firstUids, setFirstUids] = useState([]);
+  const [notifications, setNotifications] = useState([]);
 
   const getFirstUids = async (e) => {
     e.preventDefault();
 
     const requestOptions = {
-      method: 'POST',
+      method: 'post',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        spreadsheetId,
+        spreadsheetLink,
         rangeSheetTitle,
         columnCheckStatus,
         columnBkTitle,
@@ -30,25 +30,22 @@ function App() {
         columnWordsNumber,
       })
     };
-    
-    console.log(JSON.stringify({
-      spreadsheetId,
-      rangeSheetTitle,
-      columnCheckStatus,
-      columnBkTitle,
-      columnDockLink,
-      columnFirstAntiPlag,
-      columnSecondAntiPlag,
-      columnWordsNumber,
-    }));
 
-    const response = await fetch('http://63.250.59.172/api/get-uids', requestOptions);
+    try {
+      const response = await fetch('http://63.250.59.172/get-uids', requestOptions);
 
-    const parsedResponse = await response.json();
+      const parsedResponse = await response.json();
 
-    setFirstUids(parsedResponse.uids);
-
-    console.log(parsedResponse.uids);
+      setFirstUids(parsedResponse.uids);
+    } catch (error) {
+      const newNotifications = notifications;
+      newNotifications.push({
+        title: 'Ошибка',
+        text: 'Не удалось загрузить текста на text.tu',
+        isError: true,
+      });
+      setNotifications(newNotifications);
+    }
   }
 
   const handleFirstCheck = async (e) => {
@@ -59,7 +56,7 @@ function App() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         firstUids: firstUids.uids,
-        spreadsheetId,
+        spreadsheetLink,
         rangeSheetTitle,
         columnCheckStatus,
         columnBkTitle,
@@ -70,92 +67,109 @@ function App() {
       })
     };
 
-    const response = await fetch('http://63.250.59.172/api/check-first', requestOptions);
+    const response = await fetch('http://63.250.59.172/check-first', requestOptions);
 
     console.log(response);
   }
 
   return (
     <main>
-      <form>
-        <h1>Unique-tester</h1>
-        <div>
-          <label for="">ИД таблицы</label>
+      <div className='notifications'>
+        {notifications.map((notif, id) => (
+          <div className='notifications_push' key={`push-${id}`}>
+            <h3 key={`push-title-${id}`}>{notif.title}</h3>
+            <p key={`push-text-${id}`}>{notif.text}</p>
+          </div>
+          )
+        )}
+      </div>
+      <form className='params-form'>
+        <h1 className='params-form__title'>Unique-tester</h1>
+        <div className='params-form__fields'>
+          <label className='params-form__fields__label'>Ссылка на таблицу</label>
           <input
-            type="text"
-            id="status"
-            name="spreadsheetId"
-            value={spreadsheetId}
+            type='text'
+            id='status'
+            name='spreadsheetId'
+            value={spreadsheetLink}
+            className='params-form__fields__input'
             onChange={(e) => {
-              setSpreadsheetId(e.target.value)
+              setSpreadsheetLink(e.target.value)
             }}
           />
-          <label for="">Лист таблицы</label>
+          <label className='params-form__fields__label'>Лист таблицы</label>
           <input
-            type="text"
-            id="status"
-            name="rangeSheetTitle"
+            type='text'
+            id='status'
+            name='rangeSheetTitle'
             value={rangeSheetTitle}
+            className='params-form__fields__input'
             onChange={(e) => {
               setRangeSheetTitle(e.target.value)
             }}
           />
-          <label for="">Колонка для статуса</label>
+          <label className='params-form__fields__label'>Колонка для статуса</label>
           <input 
-            type="text"
-            id="status"
-            name="columnCheckStatus"
+            type='text'
+            id='status'
+            name='columnCheckStatus'
             value={columnCheckStatus}
+            className='params-form__fields__input'
             onChange={(e) => {
               setColumnCheckStatus(e.target.value)
             }}
           />
-          <label for="">Колонка для названия документа</label>
+          <label className='params-form__fields__label'>Колонка для названия документа</label>
           <input
-            type="text"
-            id="doc"
-            name="columnBkTitle"
+            type='text'
+            id='doc'
+            name='columnBkTitle'
             value={columnBkTitle}
+            className='params-form__fields__input'
             onChange={(e) => {
               setColumnBkTitle(e.target.value)
             }}
           />
-          <label for="">Колонка для ссылок</label>
+          <label className='params-form__fields__label'>Колонка для ссылок</label>
           <input
-            type="text"
-            id="links"
-            name="columnDockLink"
+            type='text'
+            id='links'
+            name='columnDockLink'
             value={columnDockLink}
+            className='params-form__fields__input'
             onChange={(e) => {
               setColumnDockLink(e.target.value)
             }}
           />
-          <label for="">Колонка для первого плагиата</label>
+          <label className='params-form__fields__label'>Колонка для первого плагиата</label>
           <input
-            type="text"
-            id="plag-1"
-            name="clumnFirstAntiPlag"
+            type='text'
+            id='plag-1'
+            name='clumnFirstAntiPlag'
             value={columnFirstAntiPlag}
+            className='params-form__fields__input'
             onChange={(e) => {
               setColumnFirstAntiPlag(e.target.value)
             }}
           />
-          <label for="">Колонка для второго плагиата</label>
+          <label className='params-form__fields__label'>Колонка для второго плагиата</label>
           <input
-            type="text"
-            id="plag-2"
-            name="clumnSecondAntiPlag"
+            type='text'
+            id='plag-2'
+            name='clumnSecondAntiPlag'
             value={columnSecondAntiPlag}
+            className='params-form__fields__input'
             onChange={(e) => {
               setColumnSecondAntiPlag(e.target.value)
             }}
           />
-          <label for="">Колонка для кол-ва слов</label>
+          <label className='params-form__fields__label'>Колонка для кол-ва слов</label>
           <input
-            type="text"
-            id="words"
-            name="clumnWordsNumber"
+            type='text'
+            id='words'
+            name='clumnWordsNumber'
             value={columnWordsNumber}
+            className='params-form__fields__input'
             onChange={(e) => {
               setColumnWordsNumber(e.target.value)
             }}
@@ -163,7 +177,10 @@ function App() {
         </div>
         <button onClick={getFirstUids}>Загрузить на первый антиплагиат</button>
         <button disabled={true}>Загрузить на второй антиплагиат</button>
-        <button onClick={handleFirstCheck}>Проверить на уникальность</button>
+        <button 
+          disabled={firstUids.length === 0}
+          onClick={handleFirstCheck}
+        >Проверить на уникальность</button>
       </form>
     </main>
   );

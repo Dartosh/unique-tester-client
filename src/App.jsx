@@ -12,6 +12,8 @@ function App() {
   const [columnWordsNumber, setColumnWordsNumber] = useState('');
   const [firstUids, setFirstUids] = useState([]);
   const [notifications, setNotifications] = useState([]);
+  const [from, setFrom] = useState(1);
+  const [to, setTo] = useState(5);
 
   const getFirstUids = async (e) => {
     e.preventDefault();
@@ -28,11 +30,13 @@ function App() {
         columnFirstAntiPlag,
         columnSecondAntiPlag,
         columnWordsNumber,
+        from,
+        to,
       })
     };
 
     try {
-      const response = await fetch('http://localhost:8/get-uids', requestOptions);
+      const response = await fetch('http://63.250.59.172/api/get-uids', requestOptions);
 
       const parsedResponse = await response.json();
 
@@ -64,12 +68,32 @@ function App() {
         columnFirstAntiPlag,
         columnSecondAntiPlag,
         columnWordsNumber,
+        from,
+        to,
+        
       })
     };
 
-    const response = await fetch('http://localhost:8800/check-first', requestOptions);
+    const response = await fetch('http://63.250.59.172/api/check-first', requestOptions);
 
     console.log(response);
+  }
+
+  const checkGetUidsButton = () => {
+    if (
+      spreadsheetLink === '' ||
+      rangeSheetTitle === '' ||
+      columnCheckStatus === '' ||
+      columnBkTitle === '' ||
+      columnDockLink === '' ||
+      columnFirstAntiPlag === '' ||
+      columnSecondAntiPlag === '' ||
+      columnWordsNumber === ''
+    ) {
+      return true;
+    }
+
+    return false;
   }
 
   return (
@@ -141,6 +165,7 @@ function App() {
               setColumnDockLink(e.target.value)
             }}
           />
+          
           <label className='params-form__fields__label'>Колонка для первого плагиата</label>
           <input
             type='text'
@@ -174,8 +199,34 @@ function App() {
               setColumnWordsNumber(e.target.value)
             }}
           />
+          <div className='tofrom'>
+            <label className='params-form__fields__label tofrom__label'>Начиная с документа No</label>
+            <input
+              type='text'
+              id='words'
+              name='clumnWordsNumber'
+              value={from}
+              className='params-form__fields__input tofrom__input'
+              onChange={(e) => {
+                setFrom(e.target.value)
+              }}
+            />
+          </div>
+          <div className='tofrom'>
+            <label className='params-form__fields__label tofrom__label'>Заканчивая документом No</label>
+            <input
+              type='text'
+              id='words'
+              name='clumnWordsNumber'
+              value={to}
+              className='params-form__fields__input tofrom__input'
+              onChange={(e) => {
+                setTo(e.target.value)
+              }}
+            />
+          </div>
         </div>
-        <button onClick={getFirstUids}>Загрузить на первый антиплагиат</button>
+        <button disabled={checkGetUidsButton()} onClick={getFirstUids}>Загрузить на первый антиплагиат</button>
         <button disabled={true}>Загрузить на второй антиплагиат</button>
         <button 
           disabled={firstUids.length === 0}

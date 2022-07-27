@@ -84,7 +84,7 @@ button:disabled {
 
 .params-form__fields__label {
   vertical-align: middle;
-  width: 30%;
+  width: 45%;
 }
 
 .notifications {
@@ -126,4 +126,18 @@ button:disabled {
   margin-top: 1vh;
   width: 100%;
   font-weight: 200;
+}
+
+.tofrom {
+  display: flex;
+  justify-content: left;
+  width: 50%;
+}
+
+.tofrom__label {
+  width: 50%;
+}
+
+.tofrom__input {
+  width: 15%;
 }

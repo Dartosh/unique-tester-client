@@ -1,5 +1,7 @@
 import './App.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import endpoints from './constants/endpoints';
 
 function App() {
   const [spreadsheetLink, setSpreadsheetLink] = useState('');
@@ -10,230 +12,147 @@ function App() {
   const [columnFirstAntiPlag, setColumnFirstAntiPlag] = useState('');
   const [columnSecondAntiPlag, setColumnSecondAntiPlag] = useState('');
   const [columnWordsNumber, setColumnWordsNumber] = useState('');
-  const [firstUids, setFirstUids] = useState([]);
-  const [notifications, setNotifications] = useState([]);
-  const [from, setFrom] = useState(1);
-  const [to, setTo] = useState(5);
+  // const [notifications, setNotifications] = useState([]);
+  const [from, setFrom] = useState('');
+  const [to, setTo] = useState('');
+  const [isOnlyWordsCount, setIsOnlyWordsCount] = useState(false)
 
-  const getFirstUids = async (e) => {
-    e.preventDefault();
+  const [isUpdateTableButtonActive, setIsUpdateTableButtonActive] = useState(false);
+  const [isSubmitButtonActive, setIsSubmitButtonActive] = useState(false);
 
-    const requestOptions = {
-      method: 'post',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        spreadsheetLink,
-        rangeSheetTitle,
-        columnCheckStatus,
-        columnBkTitle,
-        columnDockLink,
-        columnFirstAntiPlag,
-        columnSecondAntiPlag,
-        columnWordsNumber,
-        from,
-        to,
-      })
-    };
+  useEffect(
+    () => {
+      if (spreadsheetLink && rangeSheetTitle) {
+        setIsUpdateTableButtonActive(true);
+      } else {
+        setIsUpdateTableButtonActive(false);
+      }
 
+      if (
+        spreadsheetLink &&
+        rangeSheetTitle &&
+        columnCheckStatus &&
+        columnBkTitle &&
+        columnDockLink &&
+        columnFirstAntiPlag &&
+        columnSecondAntiPlag &&
+        columnWordsNumber
+      ) {
+        setIsSubmitButtonActive(true);
+      } else {
+        setIsSubmitButtonActive(false);
+      }
+    },
+    [
+      spreadsheetLink,
+      rangeSheetTitle,
+      columnCheckStatus,
+      columnBkTitle,
+      columnDockLink,
+      columnFirstAntiPlag,
+      columnSecondAntiPlag,
+      columnWordsNumber
+    ]
+  );
+
+  const handleTextRuSubmit = async (e) => {
     try {
-      const response = await fetch('http://63.250.59.172/api/get-uids', requestOptions);
+      const res = await axios.post(
+        endpoints.uploadTextRu,
+        {
+          spreadsheetId: spreadsheetLink.split('/')[5],
+          rangeSheetTitle: String(rangeSheetTitle),
+          columnCheckStatus: String(columnCheckStatus),
+          columnBkTitle: String(columnBkTitle),
+          columnDockLink: String(columnDockLink),
+          clumnFirstAntiPlag: String(columnFirstAntiPlag),
+          clumnSecondAntiPlag: String(columnSecondAntiPlag),
+          clumnWordsNumber: String(columnWordsNumber),
+          from: +from,
+          to: +to,
+          isOnlyWords: isOnlyWordsCount,
+        },
+      );
 
-      const parsedResponse = await response.json();
-
-      setFirstUids(parsedResponse.uids);
-    } catch (error) {
-      const newNotifications = notifications;
-      newNotifications.push({
-        title: 'Ошибка',
-        text: 'Не удалось загрузить текста на text.tu',
-        isError: true,
-      });
-      setNotifications(newNotifications);
+      console.log('handleTextRuSubmit response:\n', res);
+    } catch (err) {
+      console.log(err);
     }
   }
 
-  const handleFirstCheck = async (e) => {
-    e.preventDefault();
+  const handleUpdateTable = async (e) => {
+    try {
+      const res = await axios.patch(
+        endpoints.uploadTable,
+        {
+          spreadsheetId: spreadsheetLink.split('/')[5],
+          rangeSheetTitle: String(rangeSheetTitle),
+        },
+      );
 
-    const requestOptions = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        firstUids: firstUids.uids,
-        spreadsheetLink,
-        rangeSheetTitle,
-        columnCheckStatus,
-        columnBkTitle,
-        columnDockLink,
-        columnFirstAntiPlag,
-        columnSecondAntiPlag,
-        columnWordsNumber,
-        from,
-        to,
-        
-      })
-    };
-
-    const response = await fetch('http://63.250.59.172/api/check-first', requestOptions);
-
-    console.log(response);
-  }
-
-  const checkGetUidsButton = () => {
-    if (
-      spreadsheetLink === '' ||
-      rangeSheetTitle === '' ||
-      columnCheckStatus === '' ||
-      columnBkTitle === '' ||
-      columnDockLink === '' ||
-      columnFirstAntiPlag === '' ||
-      columnSecondAntiPlag === '' ||
-      columnWordsNumber === ''
-    ) {
-      return true;
+      console.log('handleUpdateTable response:\n', res);
+    } catch (err) {
+      console.log(err);
     }
-
-    return false;
   }
 
   return (
-    <main>
-      <div className='notifications'>
-        {notifications.map((notif, id) => (
-          <div className='notifications_push' key={`push-${id}`}>
-            <h3 key={`push-title-${id}`}>{notif.title}</h3>
-            <p key={`push-text-${id}`}>{notif.text}</p>
+    <div className='app'>
+      <header className='App-header'>
+        <h1>unique-tester app</h1>
+      </header>
+      <main>
+        <h2>Table info:</h2>
+        <div className='workspace'>
+          <div className='workspace__leftbar'>
+            <div className='workspace__leftbar__labels'>
+              <p>Ссылка на таблицу:</p>
+              <p>Название листа:</p>
+              <p>Колонка для статуса проверки:</p>
+              <p>Колонка для названия документа:</p>
+              <p>Колонка для ссылок:</p>
+              <p>Колонка для результата <b>text.ru</b>:</p>
+              <p>Колонка для результата <b>e-text.ru</b>:</p>
+              <p>Колонка для кол-ва слов:</p>
+            </div>
+            <form className='workspace__leftbar__form'>
+              <input type='text' value={spreadsheetLink} onChange={(e) => setSpreadsheetLink(e.target.value)}/>
+              <input type='text' value={rangeSheetTitle} onChange={(e) => setRangeSheetTitle(e.target.value)}/>
+              <input type='text' value={columnCheckStatus} onChange={(e) => setColumnCheckStatus(e.target.value)}/>
+              <input type='text' value={columnBkTitle} onChange={(e) => setColumnBkTitle(e.target.value)}/>
+              <input type='text' value={columnDockLink} onChange={(e) => setColumnDockLink(e.target.value)}/>
+              <input type='text' value={columnFirstAntiPlag} onChange={(e) => setColumnFirstAntiPlag(e.target.value)}/>
+              <input type='text' value={columnSecondAntiPlag} onChange={(e) => setColumnSecondAntiPlag(e.target.value)}/>
+              <input type='text' value={columnWordsNumber} onChange={(e) => setColumnWordsNumber(e.target.value)}/>
+            </form>
+            <div className='workspace__leftbar__selectors'>
+              <div className='workspace__leftbar__selectors_element'>
+                <label class='switch'>
+                  <input type='checkbox' checked={isOnlyWordsCount} onChange={(e) => setIsOnlyWordsCount(e.target.checked)}/>
+                  <span class='slider round'></span>
+                </label>
+                <p>Получить только количество слов</p>
+              </div>
+              <div className='workspace__leftbar__selectors_element'>
+                <p>От:</p>
+                <input type='text' value={from} onChange={(e) => setFrom(e.target.value)}/>
+              </div>
+              <div className='workspace__leftbar__selectors_element'>
+                <p>До:</p>
+                <input type='text' value={to} onChange={(e) => setTo(e.target.value)}/>
+              </div>
+            </div>
           </div>
-          )
-        )}
-      </div>
-      <form className='params-form'>
-        <h1 className='params-form__title'>Unique-tester</h1>
-        <div className='params-form__fields'>
-          <label className='params-form__fields__label'>Ссылка на таблицу</label>
-          <input
-            type='text'
-            id='status'
-            name='spreadsheetId'
-            value={spreadsheetLink}
-            className='params-form__fields__input'
-            onChange={(e) => {
-              setSpreadsheetLink(e.target.value)
-            }}
-          />
-          <label className='params-form__fields__label'>Лист таблицы</label>
-          <input
-            type='text'
-            id='status'
-            name='rangeSheetTitle'
-            value={rangeSheetTitle}
-            className='params-form__fields__input'
-            onChange={(e) => {
-              setRangeSheetTitle(e.target.value)
-            }}
-          />
-          <label className='params-form__fields__label'>Колонка для статуса</label>
-          <input 
-            type='text'
-            id='status'
-            name='columnCheckStatus'
-            value={columnCheckStatus}
-            className='params-form__fields__input'
-            onChange={(e) => {
-              setColumnCheckStatus(e.target.value)
-            }}
-          />
-          <label className='params-form__fields__label'>Колонка для названия документа</label>
-          <input
-            type='text'
-            id='doc'
-            name='columnBkTitle'
-            value={columnBkTitle}
-            className='params-form__fields__input'
-            onChange={(e) => {
-              setColumnBkTitle(e.target.value)
-            }}
-          />
-          <label className='params-form__fields__label'>Колонка для ссылок</label>
-          <input
-            type='text'
-            id='links'
-            name='columnDockLink'
-            value={columnDockLink}
-            className='params-form__fields__input'
-            onChange={(e) => {
-              setColumnDockLink(e.target.value)
-            }}
-          />
-          
-          <label className='params-form__fields__label'>Колонка для первого плагиата</label>
-          <input
-            type='text'
-            id='plag-1'
-            name='clumnFirstAntiPlag'
-            value={columnFirstAntiPlag}
-            className='params-form__fields__input'
-            onChange={(e) => {
-              setColumnFirstAntiPlag(e.target.value)
-            }}
-          />
-          <label className='params-form__fields__label'>Колонка для второго плагиата</label>
-          <input
-            type='text'
-            id='plag-2'
-            name='clumnSecondAntiPlag'
-            value={columnSecondAntiPlag}
-            className='params-form__fields__input'
-            onChange={(e) => {
-              setColumnSecondAntiPlag(e.target.value)
-            }}
-          />
-          <label className='params-form__fields__label'>Колонка для кол-ва слов</label>
-          <input
-            type='text'
-            id='words'
-            name='clumnWordsNumber'
-            value={columnWordsNumber}
-            className='params-form__fields__input'
-            onChange={(e) => {
-              setColumnWordsNumber(e.target.value)
-            }}
-          />
-          <div className='tofrom'>
-            <label className='params-form__fields__label tofrom__label'>Начиная с документа No</label>
-            <input
-              type='text'
-              id='words'
-              name='clumnWordsNumber'
-              value={from}
-              className='params-form__fields__input tofrom__input'
-              onChange={(e) => {
-                setFrom(e.target.value)
-              }}
-            />
-          </div>
-          <div className='tofrom'>
-            <label className='params-form__fields__label tofrom__label'>Заканчивая документом No</label>
-            <input
-              type='text'
-              id='words'
-              name='clumnWordsNumber'
-              value={to}
-              className='params-form__fields__input tofrom__input'
-              onChange={(e) => {
-                setTo(e.target.value)
-              }}
-            />
+          <div className='workspace__rightbar'>
+            <div className="button-container">
+              <button className='submit-button' onClick={handleTextRuSubmit} disabled={!isSubmitButtonActive}>Отправить на проверку в text.ru</button>
+              <button className='submit-button' disabled={true}>Отправить на проверку в e-text.ru</button>
+              <button className='submit-button' onClick={handleUpdateTable} disabled={!isUpdateTableButtonActive}>Выгрузить данные из таблицы</button>
+            </div>
           </div>
         </div>
-        <button disabled={checkGetUidsButton()} onClick={getFirstUids}>Загрузить на первый антиплагиат</button>
-        <button disabled={true}>Загрузить на второй антиплагиат</button>
-        <button 
-          disabled={firstUids.length === 0}
-          onClick={handleFirstCheck}
-        >Проверить на уникальность</button>
-      </form>
-    </main>
+      </main>
+    </div>
   );
 }
 

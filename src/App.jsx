@@ -83,7 +83,7 @@ function App() {
   const handleETxtSubmit = async (e) => {
     try {
       const res = await axios.post(
-        endpoints.uploadTextRu,
+        endpoints.uploadEText,
         {
           spreadsheetId: spreadsheetLink.split('/')[5],
           rangeSheetTitle: String(rangeSheetTitle),

@@ -80,6 +80,31 @@ function App() {
     }
   }
 
+  const handleETxtSubmit = async (e) => {
+    try {
+      const res = await axios.post(
+        endpoints.uploadTextRu,
+        {
+          spreadsheetId: spreadsheetLink.split('/')[5],
+          rangeSheetTitle: String(rangeSheetTitle),
+          columnCheckStatus: String(columnCheckStatus),
+          columnBkTitle: String(columnBkTitle),
+          columnDockLink: String(columnDockLink),
+          clumnFirstAntiPlag: String(columnFirstAntiPlag),
+          clumnSecondAntiPlag: String(columnSecondAntiPlag),
+          clumnWordsNumber: String(columnWordsNumber),
+          from: +from,
+          to: +to,
+          isOnlyWords: isOnlyWordsCount,
+        },
+      );
+
+      console.log('handleETxtSubmit response:\n', res);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   const handleUpdateTable = async (e) => {
     try {
       const res = await axios.patch(
@@ -146,7 +171,7 @@ function App() {
           <div className='workspace__rightbar'>
             <div className="button-container">
               <button className='submit-button' onClick={handleTextRuSubmit} disabled={!isSubmitButtonActive}>Отправить на проверку в text.ru</button>
-              <button className='submit-button' disabled={true}>Отправить на проверку в e-text.ru</button>
+              <button className='submit-button' onClick={handleETxtSubmit} disabled={!isSubmitButtonActive}>Отправить на проверку в e-text.ru</button>
               <button className='submit-button' onClick={handleUpdateTable} disabled={!isUpdateTableButtonActive}>Выгрузить данные из таблицы</button>
             </div>
           </div>

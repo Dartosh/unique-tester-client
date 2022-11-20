@@ -2,6 +2,8 @@ import './App.css';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import endpoints from './constants/endpoints';
+import { logTypes } from './constants/logs';
+import { init, listenNewLogs } from './services/socket';
 
 function App() {
   const [spreadsheetLink, setSpreadsheetLink] = useState('');
@@ -19,6 +21,20 @@ function App() {
 
   const [isUpdateTableButtonActive, setIsUpdateTableButtonActive] = useState(false);
   const [isSubmitButtonActive, setIsSubmitButtonActive] = useState(false);
+
+  // Костыль от бесконечного useEffect
+  // eslint-disable-next-line no-unused-vars
+  const [getLogs, setGetLogs] = useState(false);
+
+  const [logs, setLogs] = useState([]);
+
+  useEffect(() => {
+    const socketConnect = init();
+
+    listenNewLogs(socketConnect, setLogs);
+
+    return () => socketConnect.disconnect();
+  }, []);
 
   useEffect(
     () => {
@@ -54,6 +70,24 @@ function App() {
       columnWordsNumber
     ]
   );
+
+  useEffect(() => {
+    const getLogs = async () => {
+      try {
+        const res = await axios.get(
+          endpoints.getLogs,
+        );
+  
+        console.log('getLogs response:\n', res);
+
+        setLogs(res.data?.logs);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    getLogs();
+  }, [getLogs]);
 
   const handleTextRuSubmit = async (e) => {
     try {
@@ -121,6 +155,19 @@ function App() {
     }
   }
 
+  const getLogClassName = (logStatus) => {
+    switch (logStatus) {
+      case logTypes.error:
+        return 'log-error';
+      case logTypes.success:
+        return 'log-success';
+      case logTypes.info:
+        return 'log-info';
+      default:
+        return 'log-info'
+    }
+  }
+
   return (
     <div className='app'>
       <header className='App-header'>
@@ -152,9 +199,9 @@ function App() {
             </form>
             <div className='workspace__leftbar__selectors'>
               <div className='workspace__leftbar__selectors_element'>
-                <label class='switch'>
+                <label className='switch'>
                   <input type='checkbox' checked={isOnlyWordsCount} onChange={(e) => setIsOnlyWordsCount(e.target.checked)}/>
-                  <span class='slider round'></span>
+                  <span className='slider round'></span>
                 </label>
                 <p>Получить только количество слов</p>
               </div>
@@ -173,6 +220,20 @@ function App() {
               <button className='submit-button' onClick={handleTextRuSubmit} disabled={!isSubmitButtonActive}>Отправить на проверку в text.ru</button>
               <button className='submit-button' onClick={handleETxtSubmit} disabled={!isSubmitButtonActive}>Отправить на проверку в e-text.ru</button>
               <button className='submit-button' onClick={handleUpdateTable} disabled={!isUpdateTableButtonActive}>Выгрузить данные из таблицы</button>
+            </div>
+            <div className='logs-container'>
+              {logs ? logs.map((log) => {
+                return(
+                  <div key={`log-${log.id}`} className={`log ${getLogClassName(log.type)}`}>
+                    <h4 className='log__title'>
+                      {log.title}
+                    </h4>
+                    <p className="log_message">
+                      {log.message}
+                    </p>
+                  </div>
+                );
+              }).reverse() : <></>}
             </div>
           </div>
         </div>

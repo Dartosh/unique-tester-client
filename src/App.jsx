@@ -89,6 +89,32 @@ function App() {
     getLogs();
   }, [getLogs]);
 
+  const handleGetLogs = async () => {
+    try {
+      const res = await axios.get(
+        endpoints.getLogs,
+      );
+
+      console.log('getLogs response:\n', res);
+
+      setLogs(res.data?.logs);
+    } catch (err) {
+      console.log('handleGetLogs error:\n', err);
+
+      setLogs((old) => {
+        return [
+          ...old,
+          {
+            id: 0,
+            title: 'Ошибка',
+            message: 'Не удалось загрузить логи системы.',
+            type: logTypes.error,
+          }
+        ]
+      });
+    }
+  }
+
   const handleTextRuSubmit = async (e) => {
     try {
       const res = await axios.post(
@@ -111,6 +137,18 @@ function App() {
       console.log('handleTextRuSubmit response:\n', res);
     } catch (err) {
       console.log(err);
+
+      setLogs((old) => {
+        return [
+          ...old,
+          {
+            id: 0,
+            title: 'Ошибка пользователя',
+            message: 'Не удалось загрузить текста на проверку, проверьте введённые данные.',
+            type: logTypes.error,
+          }
+        ]
+      });
     }
   }
 
@@ -135,7 +173,19 @@ function App() {
 
       console.log('handleETxtSubmit response:\n', res);
     } catch (err) {
-      console.log(err);
+      console.log('handleETxtSubmit error:\n', err);
+
+      setLogs((old) => {
+        return [
+          ...old,
+          {
+            id: 0,
+            title: 'Ошибка пользователя',
+            message: 'Не удалось загрузить текста на проверку, проверьте введённые данные.',
+            type: logTypes.error,
+          }
+        ]
+      });
     }
   }
 
@@ -151,7 +201,19 @@ function App() {
 
       console.log('handleUpdateTable response:\n', res);
     } catch (err) {
-      console.log(err);
+      console.log('handleUpdateTable error:\n', err);
+
+      setLogs((old) => {
+        return [
+          ...old,
+          {
+            id: 0,
+            title: 'Ошибка пользователя',
+            message: 'Не удалось обновить таблицу, проверьте введённые данные.',
+            type: logTypes.error,
+          }
+        ]
+      });
     }
   }
 
@@ -234,7 +296,14 @@ function App() {
                   </div>
                 );
               }).reverse() : <></>}
+              
             </div>
+            <button
+              className='refresh-logs'
+              onClick={handleGetLogs}
+            >
+                Обновить
+            </button>
           </div>
         </div>
       </main>

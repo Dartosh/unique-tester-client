@@ -300,7 +300,7 @@ input:checked + .slider:before {
 .refresh-logs {
   position: absolute;
   left: 5.2%;
-  bottom: 4.2%;
+  bottom: 3.9%;
 
 
   border-radius: 0 1vw 0 1vw;
